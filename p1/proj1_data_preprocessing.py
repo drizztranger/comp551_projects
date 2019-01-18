@@ -29,25 +29,20 @@ def data_preprocessing(data, unwanted_chars = ('\r', '"', "'", '(', ')', \
     # This is pretty hardcoded for now
 def feature_creation(data, mst_cmn_wds):
     for item in data:
-        # make is_root 1 or 0
-        if item['is_root'] == True:
-            item['is_root'] = 1    
-        else:
-            item['is_root'] = 0
-            
-        # Get avg word length
-        item['avg_word_len'] = sum(len(word) for word in item['text'] ) / (len(item['text']) + 1)
-        # Get word count
-        item['word_count'] = len(item['text'])
-        # Multiply word count with average word length
-        item['wc_avg_len_interact'] = item['avg_word_len']*item['word_count']
-        # Multiply is_root with childrens
-        item['ir_child_interact'] = item['is_root']*item['children']
-        
-        # Create most common word vector and fill it with current text
+#            
+##        # Get avg word length
+#        item['avg_word_len'] = sum(len(word) for word in item['text'] ) / (len(item['text']) + 1)
+###        # Get word count
+#        item['word_count'] = len(item['text'])
+###        # Multiply word count with average word length
+#        item['wc_avg_len_interact'] = item['avg_word_len']*item['word_count']
+###        # Multiply is_root with childrens
+#        item['ir_child_interact'] = item['is_root']*item['children']
+#        
+#        # Create most common word vector and fill it with current text
         for wd in mst_cmn_wds:
             item[wd[0]]= len([x for x in item['text'] if wd[0] == x])
-            
+#            
     return data
 
 # Count the number of times each word appears 
