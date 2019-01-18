@@ -45,9 +45,8 @@ def feature_creation(data, mst_cmn_wds):
         item['ir_child_interact'] = item['is_root']*item['children']
         
         # Create most common word vector and fill it with current text
-        item['mst_cmn_wds'] = list(np.zeros(len(mst_cmn_wds)))
-        for ii, wd in enumerate(mst_cmn_wds):
-            item['mst_cmn_wds'][ii] = len([x for x in item['text'] if wd[0] == x])
+        for wd in mst_cmn_wds:
+            item[wd[0]]= len([x for x in item['text'] if wd[0] == x])
             
     return data
 
@@ -72,25 +71,66 @@ def separate_data(data):
             # Make target the popularity score
             if k == 'popularity_score':
                 target = item[k]
+        # Also append an intersect term to x
+        features.append(1)
         x.append(features)
         y.append(target)
+    
+    # make features into np.array
+    x = np.array(x)
+    # Get array of targets
+    y = np.array(y)
+    y = y.reshape([-1,1])
     return x, y
 
+def preprocess(trn_len=200, val_len=50, tst_len=50, mst_cmn_wd_len = 10):
+    # Load the data
+    with open("proj1_data.json") as fp:
+        data = json.load(fp)
+    
+    data_trn = data[0:trn_len]
+    data_val = data[trn_len:trn_len + val_len]
+    data_tst = data[trn_len + val_len:trn_len + val_len + tst_len]
+    
+    # Preprocess data, create word list (also makes the unwanted chars go away)
+    data_trn, word_list = data_preprocessing(data_trn, unwanted_chars = ('.'))
+    data_val, _ = data_preprocessing(data_val, unwanted_chars = ('.'))
+    data_tst, _ = data_preprocessing(data_tst, unwanted_chars = ('.'))
+    
+    # Count appearances of each word present in training set
+    term_appearance = word_appearances(word_list)
+    # get the 160 most common words present in training set
+    mst_cmn_wds = term_appearance.most_common()[0:mst_cmn_wd_len]
+    # Create features
+    data_trn = feature_creation(data_trn, mst_cmn_wds)
+    data_val = feature_creation(data_val, mst_cmn_wds)
+    data_tst = feature_creation(data_tst, mst_cmn_wds)
 
-# Load the data
-with open("proj1_data.json") as fp:
-    data = json.load(fp)
+    # Separate the data into features and targets
+    x_trn, y_trn = separate_data(data_trn)
+    x_val, y_val = separate_data(data_val)
+    x_tst, y_tst = separate_data(data_tst)
+    
+    # return np.array of training set, validation set, and test set
+    return x_trn, y_trn, x_val, y_val, x_tst, y_tst
 
-# Preprocess data, create word list (also makes the unwanted chars empty)
-data, word_list = data_preprocessing(data, unwanted_chars = ('.'))
-# Count appearances of each word
-term_appearance = word_appearances(word_list)
-# get the 160 most common words
-mst_cmn_wds = term_appearance.most_common()[0:10]
-# Create features
-data = feature_creation(data, mst_cmn_wds)
-# Separate the data into features and targets
-x, y = separate_data(data)
-# Print the first instance and target
-print(x[0])
-print(y[0])
+def main():
+        # Load the data
+    with open("proj1_data.json") as fp:
+        data = json.load(fp)
+        
+    data = data[0:100]
+    # Preprocess data, create word list (also makes the unwanted chars empty)
+    data, word_list = data_preprocessing(data, unwanted_chars = ('.'))
+    # Count appearances of each word
+    term_appearance = word_appearances(word_list)
+    # get the 160 most common words
+    mst_cmn_wds = term_appearance.most_common()[0:160]
+    # Create features
+    data = feature_creation(data, mst_cmn_wds)
+    # Separate the data into features and targets
+    x, y = separate_data(data)
+    return x, y, data, mst_cmn_wds
+
+if __name__ == '__main__':
+    main()
