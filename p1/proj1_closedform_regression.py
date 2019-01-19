@@ -14,6 +14,9 @@ def get_error(x, y, w):
         err += (y[ii] - yhat)**2
     return err/len(x)
 
+unwanted_chars = ('\r', '"', "'", '(', ')','*', ':', ';','[', ']', '_',\
+                  '\xbb', '\xbf', '\xef','®','=', '\n', '0', '1','2','3',\
+                  '4','5','6','7','8','9','^','—','\\','/', '?', '!', '.')
 
 # Get 1d array of inputs and targets
 x_trn, y_trn, x_val, y_val, x_tst, y_tst = \
@@ -28,24 +31,28 @@ w = xtx.dot(xty)
 trn_err = get_error(x_trn, y_trn, w)
 val_err = get_error(x_val, y_val, w)
 
-print('Training Error')
-print(trn_err)
-print('Validation Error')
-print(val_err)
+print('# Training Error: {} Validation Error: {}'.format(trn_err, val_err))
 
 
 # No extra features:
 #Training Error
-#[1.08468307]
+#[1.08204066]
 #Validation Error
-#[1.02032668]
+#[1.01495091]
 
-# word_count: 
-#raining Error
-#[1.08355378]
+# with errythin
+#Training Error
+#[1.05891058]
 #Validation Error
-#[1.01749518]
+#[0.97757024]
 
+# Added interact-interact term
+# Training Error: [1.05661095] Validation Error: [0.98815119] OVERFITTING?
+
+# W\O char num and dif char num
+# Training Error: [1.05818106] Validation Error: [0.99185777]
+
+      
 # mst_cmn_wds (160):
 #Training Error
 #[1.04815463]

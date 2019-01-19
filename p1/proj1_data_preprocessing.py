@@ -11,15 +11,13 @@ from collections import Counter
 
 # Preprocess the data, rm all unwanted chars, lowercase, and split words. Also 
 # Also appends every comments in one big list for most common word vector creation
-def data_preprocessing(data, unwanted_chars = ('\r', '"', "'", '(', ')', \
-                                               '*', ':', ';','[', ']', '_',\
-                                               '\xbb', '\xbf', '\xef','®',\
-                                               '=', '\n', '0', '1','2','3',\
-                                               '4','5','6','7','8','9','^',\
-                                               '—','\\','/', '?', '!', '.')):
+def data_preprocessing(data, unwanted_chars = ('')):
     word_list = []
     for item in data:
         # Remove all special characters
+        item['diff_char_len'] = len(set(item['text']))
+        item['char_num'] = len(item['text'])
+        
         item['text'] = "".join(c for c in item['text'] if c not in unwanted_chars)
         item['text'] = item['text'].lower().split()
         word_list = word_list + item['text']   
@@ -29,17 +27,19 @@ def data_preprocessing(data, unwanted_chars = ('\r', '"', "'", '(', ')', \
     # This is pretty hardcoded for now
 def feature_creation(data, mst_cmn_wds):
     for item in data:
-#            
-##        # Get avg word length
-#        item['avg_word_len'] = sum(len(word) for word in item['text'] ) / (len(item['text']) + 1)
-###        # Get word count
-#        item['word_count'] = len(item['text'])
-###        # Multiply word count with average word length
-#        item['wc_avg_len_interact'] = item['avg_word_len']*item['word_count']
-###        # Multiply is_root with childrens
-#        item['ir_child_interact'] = item['is_root']*item['children']
-#        
-#        # Create most common word vector and fill it with current text
+        # Get avg word length
+        item['avg_word_len'] = sum(len(word) for word in item['text'] ) / (len(item['text']) + 1)
+        # Get word count
+        item['word_count'] = len(item['text'])
+        # Multiply word count with average word length
+        item['wc_avg_len_interact'] = item['avg_word_len']*item['word_count']
+        # Multiply is_root with childrens
+        item['ir_child_interact'] = item['is_root']*item['children']
+        # Interact interact
+#        item['inter_inter'] = item['wc_avg_len_interact'] * item['ir_child_interact']
+        
+        
+        # Create most common word vector and fill it with current text
         for wd in mst_cmn_wds:
             item[wd[0]]= len([x for x in item['text'] if wd[0] == x])
 #            
@@ -95,7 +95,7 @@ def preprocess(trn_len=200, val_len=50, tst_len=50, mst_cmn_wd_len = 10):
     # Count appearances of each word present in training set
     term_appearance = word_appearances(word_list)
     # get the 160 most common words present in training set
-    mst_cmn_wds = term_appearance.most_common()[0:mst_cmn_wd_len]
+    mst_cmn_wds = term_appearance.most_common()[10:10+mst_cmn_wd_len]
     # Create features
     data_trn = feature_creation(data_trn, mst_cmn_wds)
     data_val = feature_creation(data_val, mst_cmn_wds)
