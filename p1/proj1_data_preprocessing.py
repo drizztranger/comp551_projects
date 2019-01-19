@@ -15,33 +15,33 @@ def data_preprocessing(data, unwanted_chars = ('')):
     word_list = []
     for item in data:
         # Remove all special characters
-        item['diff_char_len'] = len(set(item['text']))
-        item['char_num'] = len(item['text'])
-        
         item['text'] = "".join(c for c in item['text'] if c not in unwanted_chars)
-        item['text'] = item['text'].lower().split()
-        word_list = word_list + item['text']   
+        item['text_lower_split'] = item['text'].lower().split()
+        word_list = word_list + item['text_lower_split']   
     return data, word_list
 
 # Create features
     # This is pretty hardcoded for now
 def feature_creation(data, mst_cmn_wds):
     for item in data:
-        # Get avg word length
-        item['avg_word_len'] = sum(len(word) for word in item['text'] ) / (len(item['text']) + 1)
-        # Get word count
-        item['word_count'] = len(item['text'])
-        # Multiply word count with average word length
-        item['wc_avg_len_interact'] = item['avg_word_len']*item['word_count']
-        # Multiply is_root with childrens
-        item['ir_child_interact'] = item['is_root']*item['children']
+        # Get the length of the set of characters in this comment
+        item['diff_char_len'] = len(set(item['text']))
+#        # Get the number of characters
+##        item['char_num'] = len(item['text'])
+#        # Get avg word length
+        item['avg_word_len'] = sum(len(word) for word in item['text_lower_split'] ) / (len(item['text_lower_split']) + 1)
+#        # Get word count
+#        item['word_count'] = len(item['text_lower_split'])
+#        # Multiply word count with average word length
+#        item['wc_avg_len_interact'] = item['avg_word_len']*item['word_count']
+#        # Multiply is_root with childrens
+#        item['ir_child_interact'] = item['is_root']*item['children']
         # Interact interact
 #        item['inter_inter'] = item['wc_avg_len_interact'] * item['ir_child_interact']
         
-        
         # Create most common word vector and fill it with current text
         for wd in mst_cmn_wds:
-            item[wd[0]]= len([x for x in item['text'] if wd[0] == x])
+            item[wd[0]]= len([x for x in item['text_lower_split'] if wd[0] == x])
 #            
     return data
 
@@ -61,13 +61,13 @@ def separate_data(data):
         features = []
         for k in key:
             # We dont want the text or the target for our features
-            if k != 'text' and k != 'popularity_score':
+            if k != 'text' and k != 'popularity_score' and k != 'text_lower_split':
                 features.append(item[k])
             # Make target the popularity score
             if k == 'popularity_score':
                 target = item[k]
         # Also append an intersect term to x
-        features.append(1)
+#        features.append(1)
         x.append(features)
         y.append(target)
     
@@ -78,7 +78,24 @@ def separate_data(data):
     y = y.reshape([-1,1])
     return x, y
 
-def preprocess(trn_len=200, val_len=50, tst_len=50, mst_cmn_wd_len = 10):
+# Find the min and max values for each column
+def minmax(data):
+	minmax = list()
+	for i in range(len(data[0])):
+		col = [row[i] for row in data]
+		value_min = min(col)
+		value_max = max(col)
+		minmax.append([value_min, value_max])
+	return minmax
+
+# Rescale dataset columns to the range [0, 1]
+def normalize(data, minmax):
+	for row in data:
+		for i in range(len(row)):
+			row[i] = ((row[i] - minmax[i][0]) / (minmax[i][1] - minmax[i][0])) 
+    
+def preprocess(trn_len=200, val_len=50, tst_len=50, mst_cmn_wd_len = 10,\
+               mst_cmn_wd_start = 10):
     # Load the data
     with open("proj1_data.json") as fp:
         data = json.load(fp)
@@ -95,7 +112,8 @@ def preprocess(trn_len=200, val_len=50, tst_len=50, mst_cmn_wd_len = 10):
     # Count appearances of each word present in training set
     term_appearance = word_appearances(word_list)
     # get the 160 most common words present in training set
-    mst_cmn_wds = term_appearance.most_common()[10:10+mst_cmn_wd_len]
+    mst_cmn_wds = term_appearance.most_common()[mst_cmn_wd_start:\
+                                             mst_cmn_wd_start+mst_cmn_wd_len]
     # Create features
     data_trn = feature_creation(data_trn, mst_cmn_wds)
     data_val = feature_creation(data_val, mst_cmn_wds)
@@ -128,4 +146,21 @@ def main():
     return x, y, data, mst_cmn_wds
 
 if __name__ == '__main__':
-    main()
+    x, y, data, mst_cmn_wds = main()
+    normalize(x, minmax(x))
+    normalize(y, minmax(y))    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
