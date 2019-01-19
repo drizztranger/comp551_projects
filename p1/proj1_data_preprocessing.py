@@ -31,11 +31,11 @@ def feature_creation(data, mst_cmn_wds):
 #        # Get avg word length
         item['avg_word_len'] = sum(len(word) for word in item['text_lower_split'] ) / (len(item['text_lower_split']) + 1)
 #        # Get word count
-#        item['word_count'] = len(item['text_lower_split'])
-#        # Multiply word count with average word length
-#        item['wc_avg_len_interact'] = item['avg_word_len']*item['word_count']
-#        # Multiply is_root with childrens
-#        item['ir_child_interact'] = item['is_root']*item['children']
+        item['word_count'] = len(item['text_lower_split'])
+        # Multiply word count with average word length
+        item['wc_avg_len_interact'] = item['avg_word_len']*item['word_count']
+        # Multiply is_root with childrens
+        item['ir_child_interact'] = item['is_root']*item['children']
         # Interact interact
 #        item['inter_inter'] = item['wc_avg_len_interact'] * item['ir_child_interact']
         

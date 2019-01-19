@@ -7,6 +7,8 @@ Closed form linear regression of reddit comments
 from numpy import linalg
 import proj1_data_preprocessing as pp
 import matplotlib.pyplot as plt
+import time
+import sys
 
 def get_error(x, y, w):
     err = 0
@@ -19,10 +21,10 @@ def main():
 
     tot_trn_err = []
     tot_val_err = []
-    for mst_cmn_wrds in range(10, 170, 20):
+    for mst_cmn_wrds in range(0, 200, 10):
         validation_err = []
         training_err = []
-        for mst_cmn_start in range(0, 80, 10):
+        for mst_cmn_start in range(0, 26, 2):
             # Get 1d array of inputs and targets
             x_trn, y_trn, x_val, y_val, x_tst, y_tst = \
              pp.preprocess(trn_len = 10000, val_len = 1000, tst_len = 1000, \
@@ -34,10 +36,19 @@ def main():
             pp.normalize(x_val, pp.minmax(x_val))
             pp.normalize(y_val, pp.minmax(y_val))
             
-            # Closed form lin reg
-            xtx = linalg.inv(x_trn.transpose().dot(x_trn))
+            xtx = x_trn.transpose().dot(x_trn)
+            # Closed form lin reg, checks if its invertible
+            if linalg.cond(xtx) < 1/sys.float_info.epsilon:
+                xtxi = linalg.inv(xtx)
+            else:
+                #handle it
+                print('Singular matrix, going to next mst_cmn_wds value')
+                tot_trn_err.append(training_err)
+                tot_val_err.append(validation_err)
+                break
+            
             xty = x_trn.transpose().dot(y_trn)
-            w = xtx.dot(xty)
+            w = xtxi.dot(xty)
             
             trn_err = get_error(x_trn, y_trn, w)
             val_err = get_error(x_val, y_val, w)
@@ -53,8 +64,14 @@ def main():
     return tot_val_err, tot_trn_err
 
 if __name__ == '__main__':
+    start = time. time()
+    "the code you want to test stays here"
+    
     tot_val_err, tot_trn_err = main()
 
+    end = time. time()
+    print(end - start)
+    
 
 # No extra features, normalized x and y, 60 mst cmn wds
 # Training Error: [0.15660152] Validation Error: [0.11444731]
