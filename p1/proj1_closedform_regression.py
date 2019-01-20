@@ -19,12 +19,12 @@ def get_error(x, y, w):
 
 def main():
     lw_st = 0
-    lw_end = 20
+    lw_end = 40
     lw_jump = 2
     
     tot_trn_err = []
     tot_val_err = []
-    for mst_cmn_wrds in range(30, 70, 2):
+    for mst_cmn_wrds in range(30, 170, 2):
         validation_err = []
         training_err = []
         del(validation_err)
@@ -67,8 +67,9 @@ def main():
             
             validation_err[ii] = val_err
             training_err[ii] = trn_err
-            print(validation_err)
-            
+#            print(validation_err)
+            print('{} done out of {} for mst cmn words {}'.format(\
+                  ii, len(range(lw_st, lw_end, lw_jump)), mst_cmn_wrds))
         tot_trn_err.append(training_err)
         tot_val_err.append(validation_err)
         
@@ -76,10 +77,10 @@ def main():
 
         plt.plot(range(lw_st, lw_end, lw_jump), tot_val_err[wd_cnt_err])
         plt.plot(range(lw_st, lw_end, lw_jump), tot_trn_err[wd_cnt_err])
-        plt.title('{} most common words'.format(range(20, 200, 10)[wd_cnt_err]))
+        plt.title('{} most common words'.format(range(30,170,2)[wd_cnt_err]))
         plt.xlabel('Most Common words ignored')
         plt.ylabel('Error (y - yhat)^2')
-        fname='{}_most_common_words_error.pdf'.format(range(20, 200, 10)[wd_cnt_err])
+        fname='{}_most_common_words_error.pdf'.format(range(30,170,2)[wd_cnt_err])
         plt.savefig(fname)
         plt.show()
         
