@@ -23,25 +23,25 @@ def data_preprocessing(data, unwanted_chars = ('')):
 # Create features
     # This is pretty hardcoded for now
 def feature_creation(data, mst_cmn_wds):
-    for item in data:
-        # Get the length of the set of characters in this comment
-        item['diff_char_len'] = len(set(item['text']))
+#    for item in data:
+#        # Get the length of the set of characters in this comment
+#        item['diff_char_len'] = len(set(item['text']))
 #        # Get the number of characters
 ##        item['char_num'] = len(item['text'])
 #        # Get avg word length
-        item['avg_word_len'] = sum(len(word) for word in item['text_lower_split'] ) / (len(item['text_lower_split']) + 1)
-#        # Get word count
-        item['word_count'] = len(item['text_lower_split'])
-        # Multiply word count with average word length
-        item['wc_avg_len_interact'] = item['avg_word_len']*item['word_count']
-        # Multiply is_root with childrens
-        item['ir_child_interact'] = item['is_root']*item['children']
-        # Interact interact
+#        item['avg_word_len'] = sum(len(word) for word in item['text_lower_split'] ) / (len(item['text_lower_split']) + 1)
+##       # Get word count
+#        item['word_count'] = len(item['text_lower_split'])
+##       # Multiply word count with average word length
+#        item['wc_avg_len_interact'] = item['avg_word_len']*item['word_count']
+##        # Multiply is_root with childrens
+#        item['ir_child_interact'] = item['is_root']*item['children']
+##        # Interact interact
 #        item['inter_inter'] = item['wc_avg_len_interact'] * item['ir_child_interact']
 
-        # Create most common word vector and fill it with current text
-        for wd in mst_cmn_wds:
-            item[wd[0]]= len([x for x in item['text_lower_split'] if wd[0] == x])
+#        # Create most common word vector and fill it with current text
+#        for wd in mst_cmn_wds:
+#            item[wd[0]]= len([x for x in item['text_lower_split'] if wd[0] == x])
 #
     return data
 
@@ -131,6 +131,25 @@ def preprocess(trn_len=200, val_len=50, tst_len=50, mst_cmn_wd_len = 10,\
     x_tst, y_tst = separate_data(data_tst)
 
     # return np.array of training set, validation set, and test set
+    return x_trn, y_trn, x_val, y_val, x_tst, y_tst
+
+def preprocess_normalize_data(trn_len = 1000, val_len = 1000, tst_len = 1000,\
+                              mst_cmn_wrds = 60, mst_cmn_start = 5):
+    # Get 1d array of inputs and targets
+    x_trn, y_trn, x_val, y_val, x_tst, y_tst = \
+    preprocess(trn_len = trn_len, val_len = val_len, tst_len = tst_len, \
+                   mst_cmn_wd_len = mst_cmn_wrds, mst_cmn_wd_start = mst_cmn_start)
+
+    normalize(x_trn, minmax(x_trn))
+    normalize(y_trn, minmax(y_trn))
+
+    normalize(x_val, minmax(x_val))
+    normalize(y_val, minmax(y_val))
+
+    normalize(x_tst, minmax(x_tst))
+    normalize(y_tst, minmax(y_tst))
+
+
     return x_trn, y_trn, x_val, y_val, x_tst, y_tst
 
 def main():

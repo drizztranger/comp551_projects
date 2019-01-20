@@ -80,7 +80,7 @@ def main():
         plt.title('{} most common words'.format(range(30,170,2)[wd_cnt_err]))
         plt.xlabel('Most Common words ignored')
         plt.ylabel('Error (y - yhat)^2')
-        fname='{}_most_common_words_error.pdf'.format(range(30,170,2)[wd_cnt_err])
+        fname='Figures/{}_most_common_words_error.pdf'.format(range(30,170,2)[wd_cnt_err])
         plt.savefig(fname)
         plt.show()
 
