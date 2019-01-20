@@ -45,6 +45,13 @@ def feature_creation(data, mst_cmn_wds):
 #
     return data
 
+def dimensionalize(x, dimension):
+    x_dim = []
+    for power in range(1, dimension+1):
+        x_dim.append(x**power)
+    x_dim = np.concatenate(x_dim, axis=1)
+    return x_dim
+
 # Count the number of times each word appears
 def word_appearances(word_list):
     term_appearance = Counter(word_list)
@@ -101,7 +108,7 @@ def normalize(data, minmax):
 
 
 def preprocess(trn_len=200, val_len=50, tst_len=50, mst_cmn_wd_len = 10,\
-               mst_cmn_wd_start = 10):
+               mst_cmn_wd_start = 10, order = 1):
     # Load the data
     with open("proj1_data.json") as fp:
         data = json.load(fp)
@@ -130,15 +137,20 @@ def preprocess(trn_len=200, val_len=50, tst_len=50, mst_cmn_wd_len = 10,\
     x_val, y_val = separate_data(data_val)
     x_tst, y_tst = separate_data(data_tst)
 
+    x_trn = dimensionalize(x_trn, order)
+    x_val = dimensionalize(x_val, order)
+    x_tst = dimensionalize(x_tst, order)
+
     # return np.array of training set, validation set, and test set
     return x_trn, y_trn, x_val, y_val, x_tst, y_tst
 
 def preprocess_normalize_data(trn_len = 1000, val_len = 1000, tst_len = 1000,\
-                              mst_cmn_wrds = 60, mst_cmn_start = 5):
+                              mst_cmn_wrds = 60, mst_cmn_start = 5,  order = 1):
     # Get 1d array of inputs and targets
     x_trn, y_trn, x_val, y_val, x_tst, y_tst = \
     preprocess(trn_len = trn_len, val_len = val_len, tst_len = tst_len, \
-                   mst_cmn_wd_len = mst_cmn_wrds, mst_cmn_wd_start = mst_cmn_start)
+                   mst_cmn_wd_len = mst_cmn_wrds, mst_cmn_wd_start = mst_cmn_start, \
+                    order = order)
 
     normalize(x_trn, minmax(x_trn))
     normalize(y_trn, minmax(y_trn))

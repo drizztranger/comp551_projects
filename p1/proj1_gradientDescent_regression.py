@@ -69,7 +69,8 @@ def main():
 
 
     x_trn, y_trn, x_val, y_val, _, _ = \
-    pp.preprocess_normalize_data(trn_len = 1000, val_len = 100, mst_cmn_wrds = 60)
+    pp.preprocess_normalize_data(trn_len = 100, val_len = 100, mst_cmn_wrds = 60,\
+                                 order = 1)
 
     w_gd, w_gd_norm = fit_model_gradient(x_trn, y_trn)
     w_cf, w_cf_norm = fit_model_closed_form(x_trn, y_trn)
