@@ -7,8 +7,8 @@ Closed form linear regression of reddit comments
 from numpy import linalg
 import proj1_data_preprocessing as pp
 import matplotlib.pyplot as plt
-import time
 import sys
+import numpy as np
 
 def get_error(x, y, w):
     err = 0
@@ -18,13 +18,22 @@ def get_error(x, y, w):
     return err/len(x)
 
 def main():
-
+    lw_st = 0
+    lw_end = 20
+    lw_jump = 2
+    
     tot_trn_err = []
     tot_val_err = []
-    for mst_cmn_wrds in range(0, 200, 10):
+    for mst_cmn_wrds in range(30, 70, 2):
         validation_err = []
         training_err = []
-        for mst_cmn_start in range(0, 26, 2):
+        del(validation_err)
+        del(training_err)
+        training_err=[None]*(len(range(lw_st, lw_end, lw_jump)))
+        validation_err=[None]*(len(range(lw_st, lw_end, lw_jump)))
+            
+        for ii, mst_cmn_start in enumerate(range(lw_st, lw_end, lw_jump)):
+            
             # Get 1d array of inputs and targets
             x_trn, y_trn, x_val, y_val, x_tst, y_tst = \
              pp.preprocess(trn_len = 10000, val_len = 1000, tst_len = 1000, \
@@ -53,24 +62,32 @@ def main():
             trn_err = get_error(x_trn, y_trn, w)
             val_err = get_error(x_val, y_val, w)
             
-            print('# Training Error: {} Validation Error: {}. Most Common word start: {}, Most common word len: {}'\
-                  .format(trn_err, val_err, mst_cmn_start, mst_cmn_wrds))
-            validation_err.append(val_err)
-            training_err.append(trn_err)
+#            print('# Training Error: {} Validation Error: {}. Most Common word start: {}, Most common word len: {}'\
+#                  .format(trn_err[0], val_err[0], mst_cmn_start, mst_cmn_wrds))
+            
+            validation_err[ii] = val_err
+            training_err[ii] = trn_err
+            print(validation_err)
             
         tot_trn_err.append(training_err)
         tot_val_err.append(validation_err)
-            
+        
+    for wd_cnt_err in range(len(tot_trn_err)):
+
+        plt.plot(range(lw_st, lw_end, lw_jump), tot_val_err[wd_cnt_err])
+        plt.plot(range(lw_st, lw_end, lw_jump), tot_trn_err[wd_cnt_err])
+        plt.title('{} most common words'.format(range(20, 200, 10)[wd_cnt_err]))
+        plt.xlabel('Most Common words ignored')
+        plt.ylabel('Error (y - yhat)^2')
+        fname='{}_most_common_words_error.pdf'.format(range(20, 200, 10)[wd_cnt_err])
+        plt.savefig(fname)
+        plt.show()
+        
     return tot_val_err, tot_trn_err
 
 if __name__ == '__main__':
-    start = time. time()
-    "the code you want to test stays here"
-    
     tot_val_err, tot_trn_err = main()
-
-    end = time. time()
-    print(end - start)
+    
     
 
 # No extra features, normalized x and y, 60 mst cmn wds
