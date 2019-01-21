@@ -5,17 +5,20 @@ Mini Project 1, data creation
 @author: sgeoff1
 """
 
-import json # we need to use the JSON package to load the data, since the data is stored in JSON format
+import json # we need to use the JSON package to load the data, since the 
+#data is stored in JSON format
 import numpy as np
 from collections import Counter
 
 # Preprocess the data, rm all unwanted chars, lowercase, and split words. Also
-# Also appends every comments in one big list for most common word vector creation
+# Also appends every comments in one big list for most common
+# word vector creation
 def data_preprocessing(data, unwanted_chars = ('')):
     word_list = []
     for item in data:
         # Remove all special characters
-        item['text'] = "".join(c for c in item['text'] if c not in unwanted_chars)
+        item['text'] = "".join(c for c in item['text']\
+            if c not in unwanted_chars)
         item['text_lower_split'] = item['text'].lower().split()
         word_list = word_list + item['text_lower_split']
     return data, word_list
@@ -29,7 +32,8 @@ def feature_creation(data, mst_cmn_wds):
 #        # Get the number of characters
 ##        item['char_num'] = len(item['text'])
 #        # Get avg word length
-#        item['avg_word_len'] = sum(len(word) for word in item['text_lower_split'] ) / (len(item['text_lower_split']) + 1)
+#        item['avg_word_len'] = sum(len(word) for word in \
+#        item['text_lower_split'] ) / (len(item['text_lower_split']) + 1)
 ##       # Get word count
 #        item['word_count'] = len(item['text_lower_split'])
 ##       # Multiply word count with average word length
@@ -37,12 +41,12 @@ def feature_creation(data, mst_cmn_wds):
 ##        # Multiply is_root with childrens
 #        item['ir_child_interact'] = item['is_root']*item['children']
 ##        # Interact interact
-#        item['inter_inter'] = item['wc_avg_len_interact'] * item['ir_child_interact']
-
+#        item['inter_inter'] = item['wc_avg_len_interact'] *\
+#        item['ir_child_interact']
 #        # Create most common word vector and fill it with current text
         for wd in mst_cmn_wds:
-            item[wd[0]]= len([x for x in item['text_lower_split'] if wd[0] == x])
-
+            item[wd[0]]= len([x for x in item['text_lower_split']\
+                 if wd[0] == x])
     return data
 
 def dimensionalize(x, dimension):
@@ -59,7 +63,7 @@ def word_appearances(word_list):
 
 # Separate the data into the features and the target
     # This is pretty hard coded for now
-def separate_data(data):
+def separate_data(data, add_intercept):
     x = []
     y = []
     # Get the keys of the dictionary
@@ -68,13 +72,15 @@ def separate_data(data):
         features = []
         for k in key:
             # We dont want the text or the target for our features
-            if k != 'text' and k != 'popularity_score' and k != 'text_lower_split':
+            if k != 'text' and k != 'popularity_score' and\
+            k != 'text_lower_split':
                 features.append(item[k])
             # Make target the popularity score
             if k == 'popularity_score':
                 target = item[k]
         # Also append an intersect term to x
-#        features.append(1)
+        if add_intercept:   
+            features.append(1)
         x.append(features)
         y.append(target)
 
@@ -102,13 +108,15 @@ def normalize(data, minmax):
     for row in data:
         for i in range(len(row)):
             if minmax[i][1] != minmax[i][0]:
-                row[i] = ((row[i] - minmax[i][0]) / (minmax[i][1] - minmax[i][0]))
+                row[i] = ((row[i] - minmax[i][0]) /\
+                   (minmax[i][1] - minmax[i][0]))
             else:
-                row[i] = ((row[i] - minmax[i][0]) / (1 + minmax[i][1] - minmax[i][0]))
+                row[i] = ((row[i] - minmax[i][0]) /\
+                   (1 + minmax[i][1] - minmax[i][0]))
 
 
-def preprocess(trn_len=200, val_len=50, tst_len=50, mst_cmn_wd_len = 160,\
-               mst_cmn_wd_start = 0, order = 1):
+def preprocess(trn_len=10000, val_len=1000, tst_len=1000, mst_cmn_wd_len = 160,\
+               mst_cmn_wd_start = 0, order = 1, add_intercept = True):
     # Load the data
     with open("proj1_data.json") as fp:
         data = json.load(fp)
@@ -133,9 +141,9 @@ def preprocess(trn_len=200, val_len=50, tst_len=50, mst_cmn_wd_len = 160,\
     data_tst = feature_creation(data_tst, mst_cmn_wds)
 
     # Separate the data into features and targets
-    x_trn, y_trn = separate_data(data_trn)
-    x_val, y_val = separate_data(data_val)
-    x_tst, y_tst = separate_data(data_tst)
+    x_trn, y_trn = separate_data(data_trn, add_intercept)
+    x_val, y_val = separate_data(data_val, add_intercept)
+    x_tst, y_tst = separate_data(data_tst, add_intercept)
 
     x_trn = dimensionalize(x_trn, order)
     x_val = dimensionalize(x_val, order)
@@ -144,26 +152,18 @@ def preprocess(trn_len=200, val_len=50, tst_len=50, mst_cmn_wd_len = 160,\
     # return np.array of training set, validation set, and test set
     return x_trn, y_trn, x_val, y_val, x_tst, y_tst
 
-def preprocess_normalize_data(trn_len = 1000, val_len = 1000, tst_len = 1000,\
-                              mst_cmn_wrds = 60, mst_cmn_start = 5,  order = 1):
-    # Get 1d array of inputs and targets
-    x_trn, y_trn, x_val, y_val, x_tst, y_tst = \
-    preprocess(trn_len = trn_len, val_len = val_len, tst_len = tst_len, \
-                   mst_cmn_wd_len = mst_cmn_wrds, mst_cmn_wd_start = mst_cmn_start, \
-                    order = order)
 
-#    normalize(x_trn, minmax(x_trn))
-#    normalize(y_trn, minmax(y_trn))
-#
-#    normalize(x_val, minmax(x_val))
-#    normalize(y_val, minmax(y_val))
-#
-#    normalize(x_tst, minmax(x_tst))
-#    normalize(y_tst, minmax(y_tst))
+def normalize_all(x_trn, y_trn, x_val, y_val, x_tst, y_tst):
+    normalize(x_trn, minmax(x_trn))
+    normalize(y_trn, minmax(y_trn))
 
+    normalize(x_val, minmax(x_val))
+    normalize(y_val, minmax(y_val))
 
+    normalize(x_tst, minmax(x_tst))
+    normalize(y_tst, minmax(y_tst))
     return x_trn, y_trn, x_val, y_val, x_tst, y_tst
-
+    
 def main():
         # Load the data
     with open("proj1_data.json") as fp:
@@ -187,18 +187,4 @@ if __name__ == '__main__':
 
     with open('words.txt', 'w') as f:
         for wd in mst_cmn_wds:
-            print(wd, file=f)  # Python 3.x
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            print(wd, file=f)
