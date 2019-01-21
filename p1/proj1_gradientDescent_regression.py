@@ -36,11 +36,11 @@ def fit_model_closed_form(x, y):
         print('Singular matrix, closed form not solvable')
         w = np.zeros((x.shape[1], 1))
 
-    return np.asarray(w), np.linalg.norm(w, ord=2)
+    return np.asarray(w), np.linalg.norm(w, ord=1)
 
 
-def fit_model_gradient(x, y, epochs = 500000, beta = 0.1, eta = 1e-5,\
-                       epsilon = 1e-8):
+def fit_model_gradient(x, y, epochs = 10000, beta = 0.1, eta = 1e-5,\
+                       epsilon = 1e-7):
     err = []
     w = []
     w_norm = []
@@ -55,7 +55,7 @@ def fit_model_gradient(x, y, epochs = 500000, beta = 0.1, eta = 1e-5,\
         err.append(x*w[-1] - y)
         grad = x.T*err[-1]
         w.append(w[-1] - 2*alpha * grad)
-        w_norm.append(np.linalg.norm((w[-1]), ord=2))
+        w_norm.append(np.linalg.norm((w[-1]), ord=1))
         if np.linalg.norm((w[-1] - w[-2]), ord=2) < epsilon:
             print('Epsilon value reached after {} epochs'.format(ii))
             return np.asarray(w[-1]),  w_norm
@@ -69,10 +69,10 @@ def main():
 
 
     x_trn, y_trn, x_val, y_val, _, _ = \
-    pp.preprocess_normalize_data(trn_len = 100, val_len = 100, mst_cmn_wrds = 60,\
-                                 order = 1)
+    pp.preprocess_normalize_data(trn_len = 10000, val_len = 1000, tst_len = 1000,\
+                                 mst_cmn_wrds = 160, order = 1)
 
-    w_gd, w_gd_norm = fit_model_gradient(x_trn, y_trn)
+    w_gd, w_gd_norm = fit_model_gradient(x_trn, y_trn, epochs = 10000, eta = 1e-4)
     w_cf, w_cf_norm = fit_model_closed_form(x_trn, y_trn)
 
     w0 = np.zeros(len(w_cf))

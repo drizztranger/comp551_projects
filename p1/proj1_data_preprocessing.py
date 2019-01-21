@@ -23,7 +23,7 @@ def data_preprocessing(data, unwanted_chars = ('')):
 # Create features
     # This is pretty hardcoded for now
 def feature_creation(data, mst_cmn_wds):
-#    for item in data:
+    for item in data:
 #        # Get the length of the set of characters in this comment
 #        item['diff_char_len'] = len(set(item['text']))
 #        # Get the number of characters
@@ -40,9 +40,9 @@ def feature_creation(data, mst_cmn_wds):
 #        item['inter_inter'] = item['wc_avg_len_interact'] * item['ir_child_interact']
 
 #        # Create most common word vector and fill it with current text
-#        for wd in mst_cmn_wds:
-#            item[wd[0]]= len([x for x in item['text_lower_split'] if wd[0] == x])
-#
+        for wd in mst_cmn_wds:
+            item[wd[0]]= len([x for x in item['text_lower_split'] if wd[0] == x])
+
     return data
 
 def dimensionalize(x, dimension):
@@ -107,8 +107,8 @@ def normalize(data, minmax):
                 row[i] = ((row[i] - minmax[i][0]) / (1 + minmax[i][1] - minmax[i][0]))
 
 
-def preprocess(trn_len=200, val_len=50, tst_len=50, mst_cmn_wd_len = 10,\
-               mst_cmn_wd_start = 10, order = 1):
+def preprocess(trn_len=200, val_len=50, tst_len=50, mst_cmn_wd_len = 160,\
+               mst_cmn_wd_start = 0, order = 1):
     # Load the data
     with open("proj1_data.json") as fp:
         data = json.load(fp)
@@ -118,9 +118,9 @@ def preprocess(trn_len=200, val_len=50, tst_len=50, mst_cmn_wd_len = 10,\
     data_tst = data[trn_len + val_len:trn_len + val_len + tst_len]
 
     # Preprocess data, create word list (also makes the unwanted chars go away)
-    data_trn, word_list = data_preprocessing(data_trn, unwanted_chars = ('.'))
-    data_val, _ = data_preprocessing(data_val, unwanted_chars = ('.'))
-    data_tst, _ = data_preprocessing(data_tst, unwanted_chars = ('.'))
+    data_trn, word_list = data_preprocessing(data_trn, unwanted_chars = (''))
+    data_val, _ = data_preprocessing(data_val, unwanted_chars = (''))
+    data_tst, _ = data_preprocessing(data_tst, unwanted_chars = (''))
 
     # Count appearances of each word present in training set
     term_appearance = word_appearances(word_list)
@@ -152,14 +152,14 @@ def preprocess_normalize_data(trn_len = 1000, val_len = 1000, tst_len = 1000,\
                    mst_cmn_wd_len = mst_cmn_wrds, mst_cmn_wd_start = mst_cmn_start, \
                     order = order)
 
-    normalize(x_trn, minmax(x_trn))
-    normalize(y_trn, minmax(y_trn))
-
-    normalize(x_val, minmax(x_val))
-    normalize(y_val, minmax(y_val))
-
-    normalize(x_tst, minmax(x_tst))
-    normalize(y_tst, minmax(y_tst))
+#    normalize(x_trn, minmax(x_trn))
+#    normalize(y_trn, minmax(y_trn))
+#
+#    normalize(x_val, minmax(x_val))
+#    normalize(y_val, minmax(y_val))
+#
+#    normalize(x_tst, minmax(x_tst))
+#    normalize(y_tst, minmax(y_tst))
 
 
     return x_trn, y_trn, x_val, y_val, x_tst, y_tst
@@ -169,9 +169,9 @@ def main():
     with open("proj1_data.json") as fp:
         data = json.load(fp)
 
-    data = data[0:100]
+#    data = data[0:100]
     # Preprocess data, create word list (also makes the unwanted chars empty)
-    data, word_list = data_preprocessing(data, unwanted_chars = ('.'))
+    data, word_list = data_preprocessing(data, unwanted_chars = (''))
     # Count appearances of each word
     term_appearance = word_appearances(word_list)
     # get the 160 most common words
@@ -184,8 +184,10 @@ def main():
 
 if __name__ == '__main__':
     x, y, data, mst_cmn_wds = main()
-    normalize(x, minmax(x))
-    normalize(y, minmax(y))
+
+    with open('words.txt', 'w') as f:
+        for wd in mst_cmn_wds:
+            print(wd, file=f)  # Python 3.x
 
 
 
