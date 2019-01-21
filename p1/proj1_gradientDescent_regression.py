@@ -60,7 +60,7 @@ def fit_model_gradient(x, y, epochs = 10000, beta = 0.01, eta = 1e-5,\
         if np.linalg.norm((w[-1] - w[-2]), ord=2) < epsilon:
             print('Epsilon value reached after {} epochs'.format(ii))
             return np.asarray(w[-1]),  w_norm
-        if ii%epochs/100 == 0:
+        if ii%(epochs/100) == 0:
             print(ii)
 
     print('Epoch limit of {} reached'.format(epochs))
@@ -83,13 +83,13 @@ def cf_test():
 def main():
 
     x_trn, y_trn, x_val, y_val, x_tst, y_tst = \
-    pp.preprocess(trn_len=10000, val_len=1000, tst_len=1000, mst_cmn_wd_len=160,\
+    pp.preprocess(trn_len=10000, val_len=1000, tst_len=1000, mst_cmn_wd_len=60,\
                mst_cmn_wd_start = 0, order = 1)
 
 #    x_trn, y_trn, x_val, y_val, x_tst, y_tst = \
 #    pp.normalize_all(x_trn, y_trn, x_val, y_val, x_tst, y_tst)
 
-    w_gd, w_gd_norm = fit_model_gradient(x_trn, y_trn, epochs=50000, eta=1e-5)
+    w_gd, w_gd_norm = fit_model_gradient(x_trn, y_trn, epochs=100000, eta=1e-5)
     w_cf, w_cf_norm = fit_model_closed_form(x_trn, y_trn)
 
     w0 = np.zeros(len(w_cf))
@@ -142,3 +142,13 @@ if __name__ == '__main__':
 #w0 Val Err: [2.07317095], w0 Trn Err: [2.1124615]
 #4.187006946404775
 
+#64 features
+#GD Val Err: [0.98619378], GD Trn Err: [1.06121962]
+#CF Val Err: [0.98393973], CF Trn Err: [1.06042914]
+#w0 Val Err: [2.07317095], w0 Trn Err: [2.1124615]
+#1.574713448683421
+
+#GD Val Err: [0.98610232], GD Trn Err: [1.06116897]
+#CF Val Err: [0.98393973], CF Trn Err: [1.06042914]
+#w0 Val Err: [2.07317095], w0 Trn Err: [2.1124615]
+#1.8119113087654113
